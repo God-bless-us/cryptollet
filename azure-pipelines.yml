@@ -25,6 +25,7 @@ jobs:
       projectFile: '**/*droid*.csproj'
       outputDirectory: '$(outputDirectory)'
       configuration: '$(buildConfiguration)'
+      jdkOption: 'Path'
   # Xamarin.Android
   - task: AndroidSigning@3
     inputs:
