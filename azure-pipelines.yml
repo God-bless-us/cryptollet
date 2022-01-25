@@ -13,15 +13,28 @@ variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
 
-steps:
-- task: NuGetToolInstaller@1
+jobs:
+- job: BuildAndroid
+  displayName: 'Build Android App'
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '**/*.sln'
+  steps:
+  - task: NuGetToolInstaller@1
 
-- task: XamarinAndroid@1
-  inputs:
-    projectFile: '**/*droid*.csproj'
-    outputDirectory: '$(outputDirectory)'
-    configuration: '$(buildConfiguration)'
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '**/*.sln'
+
+  - task: XamarinAndroid@1
+    inputs:
+      projectFile: '**/*droid*.csproj'
+      outputDirectory: '$(outputDirectory)'
+      configuration: '$(buildConfiguration)'
+
+- job: RunTests
+  displayName: 'Run Unit Test'
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      projects: 'Cryptollet.Tests/Cryptollet.Tests.csproj'
+      configuration: '$(buildConfiguration)'
