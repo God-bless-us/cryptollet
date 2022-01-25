@@ -1,8 +1,4 @@
-# Xamarin.Android
-# Build a Xamarin.Android project.
-# Add steps that test, sign, and distribute an app, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
- 
+
 trigger:
 - master
 
@@ -29,6 +25,21 @@ jobs:
       projectFile: '**/*droid*.csproj'
       outputDirectory: '$(outputDirectory)'
       configuration: '$(buildConfiguration)'
+  # Xamarin.Android
+  - task: AndroidSigning@3
+    inputs:
+      apkFiles: '**/*.apk'
+      apksignerKeystoreFile: 'crytollet.keystore'
+      apksignerKeystorePassword: '$(keystorePassword)'
+      apksignerKeystoreAlias: '$(keystoreName)'
+      apksignerKeyPassword: '$(keystorePassword)'
+# Build a Xamarin.Android project.
+# Add steps that test, sign, and distribute an app, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'Cryptollet.Android/obj/Release/android/bin/com.kristijankralj.cryptollet.apk'
+      artifactName: AndroidApk
 
 - job: RunTests
   displayName: 'Run Unit Test'
