@@ -32,7 +32,7 @@ jobs:
   - task: AndroidSigning@3
     inputs:
       apkFiles: '**/*.apk'
-      apksignerKeystoreFile: 'crytollet.keystore'
+      apksignerKeystoreFile: 'cryptollet.keystore'
       apksignerKeystorePassword: '$(keystorePassword)'
       apksignerKeystoreAlias: '$(keystoreName)'
       apksignerKeyPassword: '$(keystorePassword)'
