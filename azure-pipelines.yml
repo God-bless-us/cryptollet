@@ -41,7 +41,7 @@ jobs:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'Cryptollet.Android/bin/Release/com.kristijankralj.cryptollet.apk'
+      pathToPublish: 'Cryptollet.Android/obj/Release/100/android/bin/com.kristijankralj.cryptollet.apk'
       artifactName: AndroidApk
 
 - job: RunTests
