@@ -62,7 +62,7 @@ jobs:
   - task: AppCenterDistribute@3
     inputs:
       serverEndpoint: 'App center'
-      appSlug: 'Cryptollet'
+      appSlug: '1205669782-qq.com/Cryptollet'
       appFile: '$(Pipeline.Workspace)/com.kristijankralj.cryptollet.apk'
       releaseNotesOption: 'file'
       releaseNotesFile: 'releasenotes.txt'
