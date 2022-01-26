@@ -9,62 +9,68 @@ variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
 
-jobs:
-- job: BuildAndroid
-  displayName: 'Build Android App'
+stages:
+- stage: BuildApps
+  displayName: 'Build the apps'
+  jobs:
+  - job: BuildAndroid
+    displayName: 'Build Android App'
 
-  steps:
-  - task: NuGetToolInstaller@1
+    steps:
+    - task: NuGetToolInstaller@1
 
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: '**/*.sln'
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '**/*.sln'
 
-  - task: XamarinAndroid@1
-    inputs:
-      projectFile: '**/*droid*.csproj'
-      outputDirectory: '$(outputDirectory)'
-      configuration: '$(buildConfiguration)'
-      #jdkOption: 'JDK'
-      jdkSelection: 'Path'
-      jdkUserInputPath: '$(JAVA_HOME)'
-  # Xamarin.Android
-  - task: AndroidSigning@3
-    inputs:
-      apkFiles: '**/*.apk'
-      apksignerKeystoreFile: 'cryptollet.keystore'
-      apksignerKeystorePassword: '$(keystorePassword)'
-      apksignerKeystoreAlias: '$(keystoreName)'
-      apksignerKeyPassword: '$(keystorePassword)'
-# Build a Xamarin.Android project.
-# Add steps that test, sign, and distribute an app, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: 'Cryptollet.Android/obj/Release/100/android/bin/com.kristijankralj.cryptollet.apk'
-      artifactName: AndroidApk
+    - task: XamarinAndroid@1
+      inputs:
+        projectFile: '**/*droid*.csproj'
+        outputDirectory: '$(outputDirectory)'
+        configuration: '$(buildConfiguration)'
+        #jdkOption: 'JDK'
+        jdkSelection: 'Path'
+        jdkUserInputPath: '$(JAVA_HOME)'
+    # Xamarin.Android
+    - task: AndroidSigning@3
+      inputs:
+        apkFiles: '**/*.apk'
+        apksignerKeystoreFile: 'cryptollet.keystore'
+        apksignerKeystorePassword: '$(keystorePassword)'
+        apksignerKeystoreAlias: '$(keystoreName)'
+        apksignerKeyPassword: '$(keystorePassword)'
+  # Build a Xamarin.Android project.
+  # Add steps that test, sign, and distribute an app, save build artifacts, and more:
+  # https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: 'Cryptollet.Android/obj/Release/100/android/bin/com.kristijankralj.cryptollet.apk'
+        artifactName: AndroidApk
 
-- job: RunTests
-  displayName: 'Run Unit Test'
-  steps:
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'test'
-      projects: 'Cryptollet.Tests/Cryptollet.Tests.csproj'
-      configuration: '$(buildConfiguration)'
-- job: AndroidBeta
-  displayName: 'Release Android Beta'
-  dependsOn: [BuildAndroid, RunTests]
-  steps:
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      artifact: AndroidApk
-  - task: AppCenterDistribute@3
-    inputs:
-      serverEndpoint: 'App center'
-      appSlug: '1205669782-qq.com/Cryptollet'
-      appFile: '$(Pipeline.Workspace)/com.kristijankralj.cryptollet.apk'
-      releaseNotesOption: 'file'
-      releaseNotesFile: 'releasenotes.txt'
-      destinationType: 'groups'
-      distributionGroupId: 'fa0cbc79-8c92-41ad-95d5-43998e33f81e'
+  - job: RunTests
+    displayName: 'Run Unit Test'
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: 'Cryptollet.Tests/Cryptollet.Tests.csproj'
+        configuration: '$(buildConfiguration)'
+- stage: BetaVBersions
+  dependsOn: BuildApps
+  displayName: "Beta Release"
+  jobs:
+  - job: AndroidBeta
+    displayName: 'Release Android Beta'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: AndroidApk
+    - task: AppCenterDistribute@3
+      inputs:
+        serverEndpoint: 'App center'
+        appSlug: '1205669782-qq.com/Cryptollet'
+        appFile: '$(Pipeline.Workspace)/com.kristijankralj.cryptollet.apk'
+        releaseNotesOption: 'file'
+        releaseNotesFile: 'releasenotes.txt'
+        destinationType: 'groups'
+        distributionGroupId: 'fa0cbc79-8c92-41ad-95d5-43998e33f81e'
